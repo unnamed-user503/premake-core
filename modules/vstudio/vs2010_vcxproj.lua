@@ -2348,13 +2348,18 @@
 		if not packageAPIInfo.packageEntries then
 			return nil
 		end
-		for _, entry in ipairs(packageAPIInfo.packageEntries) do
-			if path.getextension(entry) == extension then
-				local packageRootPath = p.filename(prj.workspace, string.format("packages\\%s.%s\\", vstudio.nuget2010.packageId(package), packageAPIInfo.verbatimVersion or packageAPIInfo.version))
-				return p.vstudio.path(prj, path.join(packageRootPath, entry))
+	
+		local packageRootPath = p.filename(prj.workspace, string.format("packages\\%s.%s\\", vstudio.nuget2010.packageId(package), packageAPIInfo.verbatimVersion or packageAPIInfo.version))
+		local intermediateDirs = { "build\\native\\", "build\\" }
+		local targetsFileName = vstudio.nuget2010.packageId(package) .. extension
+		for i = 1, #intermediateDirs do
+			for _, entry in ipairs(packageAPIInfo.packageEntries) do
+				if entry == intermediateDirs[i] .. targetsFileName then
+					return p.vstudio.path(prj, packageRootPath .. "\\" .. intermediateDirs[i] .. targetsFileName)
+				end
 			end
 		end
-
+	
 		return nil
 	end
 
